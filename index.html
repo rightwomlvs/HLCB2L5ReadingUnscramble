@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2L5 課文閱讀 句型與色彩對齊重組練習</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --container-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --border-color: #CBD5E1;
+            --success-light: #E8F5E9;
+            --success-border: #A5D6A7;
+            --wrong-light: #FFEBEE;
+            --wrong-border: #EF9A9A;
+            --warning-color: #D84315;
+        }
+        
+        /* 語意區塊專屬顏色 (高對比、好閱讀) */
+        .color-0 { background-color: #2980b9 !important; color: white !important; } /* 藍 */
+        .color-1 { background-color: #27ae60 !important; color: white !important; } /* 綠 */
+        .color-2 { background-color: #d35400 !important; color: white !important; } /* 橘 */
+        .color-3 { background-color: #8e44ad !important; color: white !important; } /* 紫 */
+        .color-4 { background-color: #c0392b !important; color: white !important; } /* 紅 */
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.1s ease-in-out;
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        h1 {
+            text-align: center;
+            color: #334155;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        /* 頁籤導覽 (四個段落) */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 15px;
+        }
+        .tab-btn {
+            background: none;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover { background-color: #EFF6FF; }
+        .tab-btn.active { background-color: #3b82f6; color: white; }
+
+        .progress {
+            text-align: center;
+            color: #64748B;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .instructions {
+            background-color: #F1F5F9;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            border-left: 4px solid #3b82f6;
+        }
+        .drop-zone {
+            min-height: 70px;
+            background-color: #FCFDFE;
+            border: 2px dashed #94A3B8;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            min-height: 70px;
+            background-color: #F8FAFC;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+        }
+        .chunk {
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+            transition: all 0.15s ease;
+        }
+        .chunk:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+        }
+        
+        .actions { text-align: center; }
+        button.btn {
+            background-color: #10B981;
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        button.btn:hover { background-color: #059669; }
+        button.btn:disabled { background-color: #CBD5E1; cursor: not-allowed; }
+
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.35s ease-out;
+        }
+        .feedback.correct {
+            background-color: var(--success-light);
+            border: 1px solid var(--success-border);
+            display: block;
+        }
+        .feedback.wrong {
+            background-color: var(--wrong-light);
+            border: 1px solid var(--wrong-border);
+            display: block;
+        }
+        .hint-text {
+            color: var(--warning-color);
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .translation {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 5px solid #009688;
+            line-height: 1.6;
+        }
+        .translation span {
+            margin: 0 2px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            background-color: #F8FAFC; 
+        }
+        .tips {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #F59E0B;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .tips b { color: #B45309; }
+        
+        .next-btn-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+        button.btn-next { background-color: #3B82F6; }
+        button.btn-next:hover { background-color: #2563EB; }
+        button.btn-audio { background-color: #8B5CF6; margin-right: 10px; }
+        button.btn-audio:hover { background-color: #7C3AED; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-container">
+    <h1>📖 B2L5 課文閱讀 句構重組挑戰</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-para1" onclick="switchTab('para1')">第一段 (傳統躍上國際)</button>
+        <button class="tab-btn" id="tab-para2" onclick="switchTab('para2')">第二段 (排灣族百步蛇)</button>
+        <button class="tab-btn" id="tab-para3" onclick="switchTab('para3')">第三段 (泰雅族菱形紋)</button>
+        <button class="tab-btn" id="tab-para4" onclick="switchTab('para4')">第四段 (文化傳承)</button>
+    </div>
+
+    <div class="progress" id="progress-text">題目 1</div>
+    
+    <div class="instructions">
+        💡 <b>學習提示：</b> 相同顏色的英文區塊與中文單字互為對譯。請將深色方塊排入正確的英文邏輯順序！<br>
+        <i>(特別觀察：中文的介系詞修飾語常常會跑到前面去喔！)</i>
+    </div>
+
+    <div class="drop-zone" id="answer-zone"></div>
+    <div class="pool" id="word-pool"></div>
+
+    <div class="actions">
+        <button class="btn" id="check-btn" onclick="checkAnswer()">檢查答案</button>
+    </div>
+
+    <div class="feedback" id="feedback-zone">
+        <div id="feedback-msg" style="font-weight: bold; font-size: 1.2rem;"></div>
+        <div id="hint-msg" class="hint-text"></div>
+        <div class="translation" id="translation-text"></div>
+        <div class="tips" id="tips-text"></div>
+        
+        <div class="next-btn-container">
+            <button class="btn btn-audio" onclick="playCurrentTTS()" id="audio-btn" style="display: none;">🔊 聽完整朗讀</button>
+            <button class="btn btn-next" onclick="nextQuestion()" id="next-btn">下一題 ➔</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Web Audio API
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+    function playCorrectSound() {
+        playTone(523.25, 'sine', 0.08); setTimeout(() => playTone(659.25, 'sine', 0.08), 80); setTimeout(() => playTone(783.99, 'sine', 0.15), 160);
+    }
+    function playWrongSound() {
+        playTone(280, 'triangle', 0.12); setTimeout(() => playTone(220, 'triangle', 0.2), 120);
+    }
+    function playTTS(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; utterance.rate = 0.85; 
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // 題庫資料 (B2L5)
+    const questionData = {
+        para1: [
+            {
+                chunks: ["In the past,", "few people thought", "that tribal culture", "could ever be linked", "to fashion."],
+                translationHtml: "中譯：<span style='color:#2980b9'>在過去，</span><span style='color:#27ae60'>很少人認為</span><span style='color:#d35400'>部落文化</span><span style='color:#8e44ad'>可以被連結</span><span style='color:#c0392b'>到時尚。</span>",
+                tip: "💡 <b>解說：</b><br>1. <b>few people</b>：很少人(幾乎沒有)。<br>2. <b>be linked to...</b>：被連結/關聯到...。"
+            },
+            {
+                chunks: ["However,", "tribal traditions", "have recently come", "under the spotlight", "for their clothing patterns."],
+                translationHtml: "中譯：<span style='color:#2980b9'>然而，</span><span style='color:#27ae60'>部落傳統</span><span style='color:#d35400'>最近成為了</span><span style='color:#8e44ad'>關注的焦點，</span><span style='color:#c0392b'>因為它們的服飾圖紋。</span>",
+                tip: "💡 <b>解說：</b><br>1. <b>come under the spotlight</b>：成為注目的焦點。<br>2. 英文的 <b>for</b> 在這裡表達「原因」(因為...的關係)。"
+            }
+        ],
+        para2: [
+            {
+                chunks: ["First, in 2017,", "Sabra Andre", "stole the show", "at Vancouver Fashion Week", "in Canada."],
+                translationHtml: "中譯：<span style='color:#2980b9'>首先，在2017年，</span><span style='color:#27ae60'>沙布喇·安德烈</span><span style='color:#c0392b'>在加拿大的</span><span style='color:#8e44ad'>溫哥華時裝週上</span><span style='color:#d35400'>大放異彩。</span>",
+                tip: "💡 <b>解說：</b><br>注意地點順序！英文習慣先寫「小地點」(時裝週)，再寫「大地點」(在加拿大)；中文則相反。"
+            },
+            {
+                chunks: ["As a member", "of the Paiwan tribe,", "he", "was inspired", "by the 'hundred-pacer' snake."],
+                translationHtml: "中譯：<span style='color:#2980b9'>身為</span><span style='color:#27ae60'>排灣族的</span><span style='color:#2980b9'>一員，</span><span style='color:#d35400'>他</span><span style='color:#c0392b'>從百步蛇身上</span><span style='color:#8e44ad'>得到了啟發。</span>",
+                tip: "💡 <b>解說：</b><br>1. <b>be inspired by...</b>：被...所啟發。<br>英文的 by 片語常放句尾，中文翻譯時會移到動詞(得到啟發)的前面。"
+            },
+            {
+                chunks: ["Sabra Andre", "turned", "this ancient image", "into part of", "his creations."],
+                translationHtml: "中譯：<span style='color:#2980b9'>沙布喇·安德烈</span><span style='color:#27ae60'>將</span><span style='color:#d35400'>這古老的意象</span><span style='color:#27ae60'>轉變</span><span style='color:#8e44ad'>為</span><span style='color:#c0392b'>他創作的</span><span style='color:#8e44ad'>一部分。</span>",
+                tip: "💡 <b>解說：</b><br><b>turn A into B</b>：將 A 轉變成為 B。"
+            },
+            {
+                chunks: ["His work", "was so impressive", "that it changed", "the way", "people saw indigenous culture."],
+                translationHtml: "中譯：<span style='color:#2980b9'>他的作品</span><span style='color:#27ae60'>如此令人驚豔，</span><span style='color:#d35400'>以至於它改變了</span><span style='color:#c0392b'>人們看待原住民文化的</span><span style='color:#8e44ad'>方式。</span>",
+                tip: "💡 <b>解說：</b><br>1. <b>so + adj. + that...</b>：如此...以至於...。<br>2. the way (人們看待...的)方式，後方常常直接接子句修飾。"
+            }
+        ],
+        para3: [
+            {
+                chunks: ["A few years later,", "other talented designers", "continued", "this trend."],
+                translationHtml: "中譯：<span style='color:#2980b9'>幾年後，</span><span style='color:#27ae60'>其他才華洋溢的設計師</span><span style='color:#d35400'>延續了</span><span style='color:#8e44ad'>這股趨勢。</span>",
+                tip: "💡 <b>解說：</b><br>continue (動詞)：延續、繼續。"
+            },
+            {
+                chunks: ["They got", "their ideas", "from the diamond patterns", "and stripes", "of the Atayal."],
+                translationHtml: "中譯：<span style='color:#2980b9'>他們</span><span style='color:#c0392b'>從泰雅族的</span><span style='color:#d35400'>菱形圖紋</span><span style='color:#8e44ad'>與條紋中</span><span style='color:#2980b9'>獲得了</span><span style='color:#27ae60'>靈感(點子)。</span>",
+                tip: "💡 <b>解說：</b><br>of the Atayal 是介系詞片語作後位修飾，中文翻譯時會移到最前面變成「泰雅族的...」。"
+            },
+            {
+                chunks: ["To the Atayal,", "these diamond patterns", "mean", "the eyes", "of their ancestors."],
+                translationHtml: "中譯：<span style='color:#2980b9'>對泰雅族而言，</span><span style='color:#27ae60'>這些菱形圖紋</span><span style='color:#d35400'>代表著</span><span style='color:#c0392b'>他們祖先的</span><span style='color:#8e44ad'>眼睛。</span>",
+                tip: "💡 <b>解說：</b><br>mean 除了「意思是...」，也可以解釋為「代表著」。"
+            },
+            {
+                chunks: ["These patterns", "are such an important part", "of the culture", "that they have been", "passed down for centuries."],
+                translationHtml: "中譯：<span style='color:#2980b9'>這些圖紋</span><span style='color:#d35400'>在文化中</span><span style='color:#27ae60'>是如此重要的一部分，</span><span style='color:#8e44ad'>以至於它們已經被</span><span style='color:#c0392b'>傳承了數世紀。</span>",
+                tip: "💡 <b>解說：</b><br>1. <b>such a/an + N. + that...</b>：如此的(名詞)...以至於...。<br>2. <b>pass down</b>：傳承流傳下來。"
+            }
+        ],
+        para4: [
+            {
+                chunks: ["More and more designers", "are drawing inspiration", "from tribal traditions", "and breathing new life", "into the fashion industry."],
+                translationHtml: "中譯：<span style='color:#2980b9'>越來越多設計師</span><span style='color:#d35400'>從部落傳統中</span><span style='color:#27ae60'>汲取靈感，</span><span style='color:#8e44ad'>並為</span><span style='color:#c0392b'>時尚產業</span><span style='color:#8e44ad'>注入新活力。</span>",
+                tip: "💡 <b>解說：</b><br><b>breathe new life into...</b>：為...注入新活力。"
+            },
+            {
+                chunks: ["What's better,", "they help pass down", "elements", "of indigenous life", "to new generations."],
+                translationHtml: "中譯：<span style='color:#2980b9'>更棒的是，</span><span style='color:#27ae60'>它們有助於將</span><span style='color:#8e44ad'>原住民生活的</span><span style='color:#d35400'>元素</span><span style='color:#27ae60'>傳承</span><span style='color:#c0392b'>給新世代。</span>",
+                tip: "💡 <b>解說：</b><br>of indigenous life 在英文放在 elements 後面做修飾；中文則是放在「元素」前面。"
+            },
+            {
+                chunks: ["This ensures", "that the stories of the past", "will still be", "remembered", "in the future."],
+                translationHtml: "中譯：<span style='color:#2980b9'>這確保了</span><span style='color:#27ae60'>過去的故事</span><span style='color:#c0392b'>在未來</span><span style='color:#d35400'>仍然會被</span><span style='color:#8e44ad'>銘記。</span>",
+                tip: "💡 <b>解說：</b><br>ensure that...：確保...事情發生。"
+            }
+        ]
+    };
+
+    let currentSection = 'para1';
+    let currentQIndex = 0;
+    let selectedOrder = []; 
+    let poolWords = [];     
+    let failCount = 0;
+
+    const mainContainer = document.getElementById('main-container');
+    const answerZone = document.getElementById('answer-zone');
+    const wordPool = document.getElementById('word-pool');
+    const feedbackZone = document.getElementById('feedback-zone');
+    const checkBtn = document.getElementById('check-btn');
+
+    function switchTab(section) {
+        currentSection = section;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${section}`).classList.add('active');
+        currentQIndex = 0;
+        initGame();
+    }
+
+    function initGame() {
+        const questions = questionData[currentSection];
+        failCount = 0;
+        document.getElementById('progress-text').innerText = `題目 ${currentQIndex + 1} / ${questions.length}`;
+        
+        let currentQ = questions[currentQIndex];
+        let mappedChunks = currentQ.chunks.map((text, idx) => {
+            return { text: text, origIndex: idx };
+        });
+
+        poolWords = [...mappedChunks].sort(() => Math.random() - 0.5);
+        selectedOrder = [];
+
+        feedbackZone.className = 'feedback';
+        checkBtn.disabled = true;
+        document.getElementById('audio-btn').style.display = 'none';
+        render();
+    }
+
+    function render() {
+        answerZone.innerHTML = '';
+        wordPool.innerHTML = '';
+
+        selectedOrder.forEach((item, index) => {
+            const block = document.createElement('div');
+            block.className = `chunk color-${item.origIndex}`;
+            block.innerText = item.text;
+            block.onclick = () => moveToPool(index);
+            answerZone.appendChild(block);
+        });
+
+        poolWords.forEach((item, index) => {
+            const block = document.createElement('div');
+            block.className = `chunk color-${item.origIndex}`;
+            block.innerText = item.text;
+            block.onclick = () => moveToAnswer(index);
+            wordPool.appendChild(block);
+        });
+
+        checkBtn.disabled = (poolWords.length !== 0);
+    }
+
+    function moveToAnswer(poolIndex) {
+        feedbackZone.className = 'feedback';
+        const item = poolWords.splice(poolIndex, 1)[0];
+        selectedOrder.push(item);
+        render();
+    }
+
+    function moveToPool(answerIndex) {
+        feedbackZone.className = 'feedback';
+        const item = selectedOrder.splice(answerIndex, 1)[0];
+        poolWords.push(item);
+        render();
+    }
+
+    function playCurrentTTS() {
+        const currentQ = questionData[currentSection][currentQIndex];
+        playTTS(currentQ.chunks.join(' '));
+    }
+
+    function checkAnswer() {
+        const currentQ = questionData[currentSection][currentQIndex];
+        
+        let isCorrect = true;
+        for(let i = 0; i < selectedOrder.length; i++) {
+            if(selectedOrder[i].origIndex !== i) {
+                isCorrect = false;
+                break;
+            }
+        }
+
+        const msgBox = document.getElementById('feedback-msg');
+        const hintBox = document.getElementById('hint-msg');
+        const translationBox = document.getElementById('translation-text');
+        const tipsBox = document.getElementById('tips-text');
+        const nextBtn = document.getElementById('next-btn');
+        const audioBtn = document.getElementById('audio-btn');
+
+        if(isCorrect) {
+            playCorrectSound();
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            
+            feedbackZone.className = 'feedback correct';
+            msgBox.innerHTML = '🎉 太棒了！順序完全正確！';
+            msgBox.style.color = '#2E7D32';
+            hintBox.innerHTML = '';
+            
+            translationBox.innerHTML = currentQ.translationHtml;
+            tipsBox.innerHTML = currentQ.tip;
+            
+            checkBtn.style.display = 'none';
+            audioBtn.style.display = 'inline-block';
+            nextBtn.style.display = 'inline-block';
+            
+            setTimeout(playCurrentTTS, 400);
+            
+        } else {
+            failCount++;
+            playWrongSound();
+            
+            mainContainer.classList.remove('shake');
+            void mainContainer.offsetWidth;
+            mainContainer.classList.add('shake');
+
+            feedbackZone.className = 'feedback wrong';
+            msgBox.innerHTML = '💪 順序不對唷！再試一次，你可以的！';
+            msgBox.style.color = '#C62828';
+            translationBox.innerText = '';
+            tipsBox.innerHTML = '';
+            nextBtn.style.display = 'none';
+            audioBtn.style.display = 'none';
+
+            let hintHtml = `🔍 <b>作答提示：</b> 第一個積木應該是 <b><span class="color-${0}" style="padding:2px 6px; border-radius:4px; color:white;">${currentQ.chunks[0]}</span></b>`;
+            if(failCount >= 2) {
+                hintHtml += ` ，緊接著第二個是 <b><span class="color-${1}" style="padding:2px 6px; border-radius:4px; color:white;">${currentQ.chunks[1]}</span></b>`;
+                setTimeout(playCurrentTTS, 400);
+            }
+            hintBox.innerHTML = hintHtml;
+        }
+    }
+
+    function nextQuestion() {
+        currentQIndex++;
+        const questions = questionData[currentSection];
+        
+        if(currentQIndex >= questions.length) {
+            alert("🎉 恭喜你！完成本段落所有練習了！請點擊上方頁籤切換其他段落喔！");
+            currentQIndex = 0; 
+        }
+        
+        checkBtn.style.display = 'inline-block';
+        window.speechSynthesis.cancel();
+        initGame();
+    }
+
+    initGame();
+</script>
+</body>
+</html>
